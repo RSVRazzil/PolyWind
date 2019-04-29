@@ -25,18 +25,20 @@ def windingNum(point, polygon):
     n = len(polygon)
     crossings = 0
     
+    print('point = (%d, %d) and polygon = %s' %  (point.x, point.y, str(polygon)))
+    
     for i in range(0, n):
         #is a crossing with edge pointing upward
-        if (polygon[i]).y <= point.y and (polygon[i+1]).y > point.y:
+        if (polygon[i]).y <= point.y and (polygon[(i+1) % n]).y > point.y:
             #point is to the left of the edge
-            if ccw(polygon[i], polygon[i+1], point) == 1:
+            if ccw(polygon[i], polygon[(i+1) % n], point) == 1:
                 crossings += 1
         #is a crossing with edge pointing downward
-        if (polygon[i]).y > point.y and (polygon[i+1]).y <= point.y:
+        if (polygon[i]).y > point.y and (polygon[(i+1) % n]).y <= point.y:
             #point is to the right of the edge
-            if ccw(polygon[i], polygon[i+1], point) == -1:
+            if ccw(polygon[i], polygon[(i+1) % n], point) == -1:
                 crossings -= 1
-    return crossings
+    return np.abs(crossings)
 
 ###################
 
@@ -115,8 +117,7 @@ def main():
         pointCircle.setOutline("white")
         pointCircle.draw(win)
         
-        #Here is the line that is causing problems (remove it to make it work):
-        #windingNumValue = windingNum(windingPoint, pointList)
+        windingNumValue = windingNum(windingPoint, pointList)
         
         #Draw text representing winding number, offset from circle center
         pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
