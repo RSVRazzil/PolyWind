@@ -40,6 +40,37 @@ def windingNum(point, polygon):
                 crossings -= 1
     return np.abs(crossings)
 
+def intersect(lineA, lineB): #intersection point of two lines
+    xdiff = (lineA.getP1().x - lineA.getP2().x, lineB.getP1().x - lineB.getP2().x)
+    ydiff = (lineA.getP1().y - lineA.getP2().y, lineB.getP1().y - lineB.getP2().y)
+    #calculate determinants
+    def lineDet(line):
+        return line.getP1().x * line.getP2().y - line.getP1().y * line.getP2().x
+    def det(pt1, pt2):
+        return pt1[0] * pt2[1] - pt1[1] * pt2[0]
+    #rays do not intersect
+    div = det(xdiff, ydiff)
+    if div == 0:
+        return 0
+    #calculate x and y values
+    d = (lineDet(lineA), lineDet(lineB))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    #check if lines intersect 
+    if x < lineA.getP1().x and x < lineA.getP2().x:
+        return 0
+    if x > lineA.getP1().x and x > lineA.getP2().x:
+        return 0
+    if y < lineB.getP1().y:
+        return 0
+    #calculate crossing number (direction)
+    #if lineA.getP2().x < x:
+    #    crossingNum = 1
+    #else:
+    #    crossingNum = 0
+    #return intersectional point
+    return Point(x, y)
+
 ###################
 
 from graphics import *
@@ -93,10 +124,18 @@ def main():
     windingPoint = Point(WIDTH/2, HEIGHT/2)
     #initialize winding number
     windingNumValue = 0
-    
+
     while stopLoop == False:    #The main graphics/input processing loop
         #Clear the drawing area
         win.delete("all")
+        #initialize ray to count edge crossings from winding point
+        ray = Line(windingPoint, Point(WIDTH/2, HEIGHT))
+        ray.setWidth(3)
+        ray.setFill("red")
+        ray.setOutline("red")
+        ray.draw(win)
+        #initialize crossing number
+        crossingNumValue = 0
         #Draw the lines representing the polygon
         for pointIndex in range(len(pointList)):
             if pointIndex == len(pointList) - 1:
@@ -109,7 +148,16 @@ def main():
             line.setWidth(3)
             line.setFill("lightgreen")
             line.setOutline("lightgreen")
+            line.setArrow("last")
             line.draw(win)
+            #find intersection of ray and edge
+            intersection = intersect(line, ray)
+            #display number of crossings from winding point to edge
+            if intersection != 0:
+                crossingNumValue = crossingNumValue + 1
+                rayText = Text(Point(intersection.x + 10, intersection.y - 10), str(crossingNumValue))
+                rayText.setOutline("white")
+                rayText.draw(win)
             
         #Draw a circle to represent the winding point
         pointCircle = Circle(windingPoint,3)
