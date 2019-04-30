@@ -1,5 +1,6 @@
 import numpy as np
 
+#Some constants
 BUTTON_X = 80
 BUTTON_Y = 40
 WIDTH = 1024
@@ -9,12 +10,6 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
-#class Polygon:
-#    def __init__(self):
-#        self.pointList = list()
-        
-#    def 
 
 def ccw(a, b, c):
     return np.sign(np.linalg.det(np.array([[a.x, b.x, c.x],
@@ -38,7 +33,7 @@ def windingNum(point, polygon):
             #point is to the right of the edge
             if ccw(polygon[i], polygon[(i+1) % n], point) == -1:
                 crossings -= 1
-    return np.abs(crossings)
+    return crossings
 
 def intersect(lineA, lineB): #intersection point of two lines
     xdiff = (lineA.getP1().x - lineA.getP2().x, lineB.getP1().x - lineB.getP2().x)
@@ -116,12 +111,12 @@ def main():
     stopLoop = False
     win = GraphWin("My Circle", WIDTH, HEIGHT)
     c = Circle(Point(50,50), 10)
-    pointList = []
+    polygonPointList = []
     #Construct "Clear" button. Draw it in loop.
     clearButton = Button("Clear", 900, 10) 
     win.setBackground("black")
     #windingPoint is the point around which the polygon winds
-    windingPoint = Point(WIDTH/2, HEIGHT/2)
+    windingPoint = None
     #initialize winding number
     windingNumValue = 0
 
@@ -167,10 +162,13 @@ def main():
         
         windingNumValue = windingNum(windingPoint, pointList)
         
-        #Draw text representing winding number, offset from circle center
-        pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
-        pointText.setOutline("white")
-        pointText.draw(win)
+            #Get Winding Number by calling function
+            windingNumValue = windingNum(windingPoint, polygonPointList)
+            
+            #Draw text representing winding number, offset from circle center
+            pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
+            pointText.setOutline("white")
+            pointText.draw(win)
         clearButton.Draw(win)
         
         
@@ -188,13 +186,17 @@ def main():
                 #Have the clear button check whether it was pressed given the click point
                 clearButton.TestPoint(mousePressed)
                 if clearButton.Pressed():
-                    pointList.clear()
+                    windingPoint = None
+                    polygonPointList.clear()
                     #Tell button to reset pressed state
                     clearButton.AckPress()
                 else:
-                    #Add a point to the polygon point list!
-                    pointList.append(mousePressed)
-                    print(pointList)
+                    if windingPoint == None:
+                        windingPoint = mousePressed
+                    else:
+                        #Add a point to the polygon point list!
+                        polygonPointList.append(mousePressed)
+                        print(polygonPointList)
             
             if keyPressed != "":
                 somethingPressed = True
