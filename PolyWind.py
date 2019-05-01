@@ -16,6 +16,8 @@ def ccw(a, b, c):
                                           [a.y, b.y, c.y],
                                           [1, 1, 1]])))
 
+##########################################################
+# WINDING NUMBER ALGORITHM
 def windingNum(point, polygon):
     n = len(polygon)
     crossings = 0
@@ -34,6 +36,7 @@ def windingNum(point, polygon):
             if ccw(polygon[i], polygon[(i+1) % n], point) == -1:
                 crossings -= 1
     return crossings
+###########################################################
 
 def intersect(lineA, lineB): #intersection point of two lines
     xdiff = (lineA.getP1().x - lineA.getP2().x, lineB.getP1().x - lineB.getP2().x)
@@ -131,6 +134,7 @@ def main():
             ray.setWidth(3)
             ray.setFill("red")
             ray.setOutline("red")
+            ray.setArrow("last");
             ray.draw(win)
             #Draw the lines representing the polygon
             for pointIndex in range(len(polygonPointList)):
@@ -151,23 +155,24 @@ def main():
                 intersection = intersect(line, ray)
                 #display number of crossings from winding point to edge
                 if intersection != 0:
-                    crossingNumValue = crossingNumValue + 1
+                    #crossingNumValue = crossingNumValue + 1
+                    crossingNumValue = int(ccw(ray.getP1(), line.getP1(), line.getP2()))
                     rayText = Text(Point(intersection.x + 10, intersection.y - 10), str(crossingNumValue))
                     rayText.setOutline("white")
                     rayText.draw(win)
             
-                #Draw a circle to represent the winding point
-                pointCircle = Circle(windingPoint,3)
-                pointCircle.setFill("white")
-                pointCircle.setOutline("white")
-                pointCircle.draw(win)
+            #Draw a circle to represent the winding point
+            pointCircle = Circle(windingPoint,3)
+            pointCircle.setFill("white")
+            pointCircle.setOutline("white")
+            pointCircle.draw(win)
                 
-                windingNumValue = windingNum(windingPoint, polygonPointList)
-                
-                #Draw text representing winding number, offset from circle center
-                pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
-                pointText.setOutline("white")
-                pointText.draw(win)
+            windingNumValue = windingNum(windingPoint, polygonPointList)
+            
+            #Draw text representing winding number, offset from circle center
+            pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
+            pointText.setOutline("white")
+            pointText.draw(win)
             clearButton.Draw(win)
         
         
