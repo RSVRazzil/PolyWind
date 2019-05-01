@@ -1,7 +1,7 @@
 import numpy as np
 
 #Some constants
-BUTTON_X = 80
+BUTTON_X = 90
 BUTTON_Y = 40
 WIDTH = 1024
 HEIGHT = 768
@@ -79,9 +79,6 @@ class Button:
         self._topLeftPoint = Point(x, y)
         self._pressed = False
         self._text = text
-    
-    def Press(self):
-        self._pressed = True
         
     def Pressed(self):
         return self._pressed
@@ -122,20 +119,25 @@ def main():
     windingPoint = None
     #initialize winding number
     windingNumValue = 0
-    
+    displayButton = Button("Toggle Ray", 900, 70)
+    displayRay = False
     while stopLoop == False:    #The main graphics/input processing loop
         #Clear the drawing area
         win.delete("all")
+        #Draw buttons
+        clearButton.Draw(win)
+        displayButton.Draw(win)
         #initialize crossing number
         crossingNumValue = 0
         if windingPoint != None:
-            #initialize ray to count edge crossings from winding point
-            ray = Line(windingPoint, Point(WIDTH/2, HEIGHT))
-            ray.setWidth(3)
-            ray.setFill("red")
-            ray.setOutline("red")
-            ray.setArrow("last");
-            ray.draw(win)
+            if displayRay:
+                #initialize ray to count edge crossings from winding point
+                ray = Line(windingPoint, Point(WIDTH/2, HEIGHT))
+                ray.setWidth(3)
+                ray.setFill("red")
+                ray.setOutline("red")
+                ray.setArrow("last");
+                ray.draw(win)
             #Draw the lines representing the polygon
             for pointIndex in range(len(polygonPointList)):
                 if pointIndex == len(polygonPointList) - 1:
@@ -151,15 +153,16 @@ def main():
                 line.setArrow("last")
                 line.draw(win)
 
-                #find intersection of ray and edge
-                intersection = intersect(line, ray)
-                #display number of crossings from winding point to edge
-                if intersection != 0:
-                    #crossingNumValue = crossingNumValue + 1
-                    crossingNumValue = int(ccw(ray.getP1(), line.getP1(), line.getP2()))
-                    rayText = Text(Point(intersection.x + 10, intersection.y - 10), str(crossingNumValue))
-                    rayText.setOutline("white")
-                    rayText.draw(win)
+                if displayRay:
+                    #find intersection of ray and edge
+                    intersection = intersect(line, ray)
+                    #display number of crossings from winding point to edge
+                    if intersection != 0:
+                        #crossingNumValue = crossingNumValue + 1
+                        crossingNumValue = int(ccw(ray.getP1(), line.getP1(), line.getP2()))
+                        rayText = Text(Point(intersection.x + 10, intersection.y - 10), str(crossingNumValue))
+                        rayText.setOutline("white")
+                        rayText.draw(win)
             
             #Draw a circle to represent the winding point
             pointCircle = Circle(windingPoint,3)
@@ -173,8 +176,6 @@ def main():
             pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
             pointText.setOutline("white")
             pointText.draw(win)
-            clearButton.Draw(win)
-        
         
         #The check functions below do not stop to wait for input, but we only
         #need to draw after user input, so the following loop just waits for
@@ -189,11 +190,15 @@ def main():
                 somethingPressed = True
                 #Have the clear button check whether it was pressed given the click point
                 clearButton.TestPoint(mousePressed)
+                displayButton.TestPoint(mousePressed)
                 if clearButton.Pressed():
                     windingPoint = None
                     polygonPointList.clear()
                     #Tell button to reset pressed state
                     clearButton.AckPress()
+                elif displayButton.Pressed():
+                    displayRay = not displayRay
+                    displayButton.AckPress()
                 elif windingPoint == None:
                     windingPoint = mousePressed
                 else:
