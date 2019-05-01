@@ -16,6 +16,9 @@ def ccw(a, b, c):
                                           [a.y, b.y, c.y],
                                           [1, 1, 1]])))
 
+def distance(p1, p2):
+    return ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2) ** 0.5
+
 def windingNum(point, polygon):
     n = len(polygon)
     crossings = 0
@@ -58,13 +61,13 @@ def intersect(lineA, lineB): #intersection point of two lines
         return 0
     if y < lineB.getP1().y:
         return 0
-    #calculate crossing number (direction)
-    #if lineA.getP2().x < x:
-    #    crossingNum = 1
-    #else:
-    #    crossingNum = 0
-    #return intersectional point
-    return Point(x, y)
+    #calculate crossing direction
+    if lineA.getP2().x < x:
+        crossDir = "+1"
+    else:
+        crossDir = "-1"
+    #return intersecting point and crossing direction
+    return [Point(x, y), crossDir]
 
 ###################
 
@@ -123,10 +126,10 @@ def main():
     while stopLoop == False:    #The main graphics/input processing loop
         #Clear the drawing area
         win.delete("all")
-        #initialize crossing number
-        crossingNumValue = 0
+        #initalize array of intersections/crossing points
+        crossPoints = []
         if windingPoint != None:
-            #initialize ray to count edge crossings from winding point
+            #draw ray to count edge crossings from winding point
             ray = Line(windingPoint, Point(WIDTH/2, HEIGHT))
             ray.setWidth(3)
             ray.setFill("red")
@@ -147,27 +150,34 @@ def main():
                 line.setArrow("last")
                 line.draw(win)
 
-                #find intersection of ray and edge
+                #find intersection of ray and edge and add to crossing list
                 intersection = intersect(line, ray)
-                #display number of crossings from winding point to edge
-                if intersection != 0:
-                    crossingNumValue = crossingNumValue + 1
-                    rayText = Text(Point(intersection.x + 10, intersection.y - 10), str(crossingNumValue))
-                    rayText.setOutline("white")
-                    rayText.draw(win)
+                if intersection != 0 and intersection not in crossPoints:
+                    crossPoints.append(intersection)
             
-                #Draw a circle to represent the winding point
-                pointCircle = Circle(windingPoint,3)
-                pointCircle.setFill("white")
-                pointCircle.setOutline("white")
-                pointCircle.draw(win)
-                
-                windingNumValue = windingNum(windingPoint, polygonPointList)
-                
-                #Draw text representing winding number, offset from circle center
-                pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
-                pointText.setOutline("white")
-                pointText.draw(win)
+            #sort crossing points by distance from winding point
+            crossPoints = sorted(crossPoints, key = lambda x: distance(x[0], windingPoint))
+            #display direction and number of crossings from winding point to intersection
+            for i in range(len(crossPoints)):
+                rayText1 = Text(Point(crossPoints[i][0].x + 10, crossPoints[i][0].y - 10), str(i+1))
+                rayText2 = Text(Point(crossPoints[i][0].x - 10, crossPoints[i][0].y - 10), str(crossPoints[i][1]))
+                rayText1.setOutline("white")
+                rayText2.setOutline("lightgreen")
+                rayText1.draw(win)
+                rayText2.draw(win)
+            
+            #Draw a circle to represent the winding point
+            pointCircle = Circle(windingPoint,3)
+            pointCircle.setFill("white")
+            pointCircle.setOutline("white")
+            pointCircle.draw(win)
+            
+            windingNumValue = windingNum(windingPoint, polygonPointList)
+            
+            #Draw text representing winding number, offset from circle center
+            pointText = Text(Point(windingPoint.x + 15, windingPoint.y - 10), str(windingNumValue))
+            pointText.setOutline("white")
+            pointText.draw(win)
             clearButton.Draw(win)
         
         
