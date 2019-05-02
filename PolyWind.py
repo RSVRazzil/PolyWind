@@ -37,7 +37,8 @@ def windingNum(point, polygon):
                 crossings -= 1
     return crossings
 ###########################################################
-
+# Note: intersect function is only used for the tutorial display.
+# It is not needed in the algorithm calculating the winding number.
 def intersect(lineA, lineB): #intersection point of two lines
     xdiff = (lineA.getP1().x - lineA.getP2().x, lineB.getP1().x - lineB.getP2().x)
     ydiff = (lineA.getP1().y - lineA.getP2().y, lineB.getP1().y - lineB.getP2().y)
@@ -69,7 +70,7 @@ def intersect(lineA, lineB): #intersection point of two lines
     #return intersectional point
     return Point(x, y)
 
-###################
+################################################
 
 from graphics import *
 
